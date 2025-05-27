@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 
-const CartPage = ({ cartItems, onPlaceOrder, onRemoveFromCart, user }) => {
+const CartPage = ({ cartItems, onRemoveFromCart, user, showMessage, setCartItems }) => {
+  
   const [visibleDescriptions, setVisibleDescriptions] = useState({});
+   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const toggleDescription = (id) => {
     setVisibleDescriptions((prevState) => ({
@@ -13,6 +15,42 @@ const CartPage = ({ cartItems, onPlaceOrder, onRemoveFromCart, user }) => {
   const calculateTotalPrice = () => {
     return cartItems.reduce((sum, item) => sum + item.price, 0);
   };
+
+const handlePlaceOrder = async () => {
+  if (!user) {
+    showMessage("Будь ласка, увійдіть, щоб зробити замовлення");
+    return;
+  }
+
+  setIsPlacingOrder(true);
+
+  try {
+    const token = await user.getIdToken();
+    const orderData = {
+      dishes: cartItems,
+    };
+
+    const response = await fetch("`${process.env.REACT_APP_API_URL}/api/cart`", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Не вдалося оформити замовлення");
+    }
+    showMessage("Замовлення оформлено!");
+    setCartItems([]);
+  } catch (err) {
+    console.error("Помилка при оформленні замовлення:", err);
+    showMessage("Не вдалося оформити замовлення");
+  } finally {
+    setIsPlacingOrder(false);
+  }
+};
 
   return (
     <div className="cart-page">
@@ -53,12 +91,16 @@ const CartPage = ({ cartItems, onPlaceOrder, onRemoveFromCart, user }) => {
               </div>
             ))}
           </div>
-
           <h3 className="cart-total">Загалом до сплати: {calculateTotalPrice()} грн</h3>
-            {user ? (
-          <button onClick={onPlaceOrder} className="cart-place-order-btn">
-            Оформити замовлення
-          </button> ) : (
+          {user ? (
+            <button
+              onClick={handlePlaceOrder}
+              className="cart-place-order-btn"
+              disabled={isPlacingOrder}
+            >
+              {isPlacingOrder ? "Оформлення..." : "Оформити замовлення"}
+            </button>
+          ) : (
             <div className="cart-login-prompt">
               <p>Будь ласка, увійдіть, щоб оформити замовлення!</p>
             </div>

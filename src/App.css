@@ -67,7 +67,7 @@ main {
 /* Вступний блок */
 .intro {
   font-family: 'Times New Roman', Times, serif;
-  background: url('/public/images/bakery.jpg') center/cover no-repeat;
+  background: url('./images/bakery.jpg') center/cover no-repeat;
   height: 300px;
   display: flex;
   align-items: center;
@@ -614,6 +614,7 @@ footer {
 }
 
 .order-header {
+  gap: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -628,6 +629,7 @@ footer {
 }
 
 .order-table {
+  
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
@@ -635,6 +637,7 @@ footer {
 
 .order-table th,
 .order-table td {
+  
   border: 1px solid #ddd;
   padding: 10px;
   text-align: left;
@@ -655,8 +658,7 @@ footer {
   border: 1px solid #ccc;
 }
 
-.cart-btn {
-  margin-top: 15px;
+.cart-btn, .order-btn {
   background-color: #FFD700;
   border: none;
   color: white;

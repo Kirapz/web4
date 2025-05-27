@@ -1,13 +1,8 @@
 import React, { useState } from "react";
 import { auth } from "../firebase";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
-import "../App.css"; 
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,} from "firebase/auth";
 
-const AuthPage = ({ setMessage }) => {
+const AuthPage = ({ setMessage , setUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -32,6 +27,7 @@ const handleSignUp = async () => {
 const handleLogin = async () => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    setUser(userCredential.user);
     setMessage(`Logged in: ${userCredential.user.email}`);
 
     setTimeout(() => {
@@ -51,17 +47,18 @@ const handleLogin = async () => {
 const handleLogout = async () => {
   try {
     await signOut(auth);
+    setUser(null);
     setMessage("Logged out successfully");
     
     setTimeout(() => {
-      setMessage(""); // Очищає повідомлення через 2 секунди
+      setMessage("");
     }, 2000);
     
   } catch (err) {
     setMessage(`Error: ${err.message}`);
 
     setTimeout(() => {
-      setMessage(""); // Також очищає помилку через 2 секунди
+      setMessage("");
     }, 2000);
   }
 };

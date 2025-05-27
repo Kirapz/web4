@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-     import { db } from "../firebase";
-     import { collection, getDocs } from "firebase/firestore";
      import FoodCard, { CustomOrderCard } from "../components/FoodCard";
      import "../App.css";
 
@@ -12,22 +10,22 @@ import React, { useState, useEffect } from "react";
        const categories = ["всі", "торти", "еклери", "круасан", "тістечка", "печево", "напої"];
 
        useEffect(() => {
-         const fetchMenu = async () => {
-           try {
-             const querySnapshot = await getDocs(collection(db, "menu"));
-             const items = querySnapshot.docs.map((doc) => ({
-               id: doc.id,
-               ...doc.data(),
-             }));
-             setMenuItems(items);
-             setLoading(false);
-           } catch (error) {
-             console.error("Error fetching menu:", error);
-             setLoading(false);
-           }
-         };
-         fetchMenu();
-       }, []);
+        
+const fetchMenu = async () => {
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/menu`);
+    const data = await response.json();
+    setMenuItems(data);
+    setLoading(false);
+  } catch (error) {
+    console.error("Error fetching menu:", error);
+    setLoading(false);
+  }
+};
+
+  fetchMenu();
+}, []); 
+
 
        const filteredItems = selectedCategory === "всі"
          ? menuItems
