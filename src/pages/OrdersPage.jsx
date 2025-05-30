@@ -26,17 +26,33 @@ const OrdersPage = ({ user }) => {
     }
   };
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (!currentUser) {
-        setError("Увійдіть, будь ласка");
-        setLoading(false);
-        return;
-      }
-      await fetchOrders();
-    });
-    return () => unsubscribe();
-  }, []);
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    if (!currentUser) {
+      setError("Увійдіть, будь ласка");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const token = await currentUser.getIdToken();
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/orders`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to fetch orders");
+      const data = await response.json();
+      setOrders(data);
+      setError("");
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+      setError("Не вдалося завантажити замовлення");
+    } finally {
+      setLoading(false);
+    }
+  });
+  return () => unsubscribe();
+}, []);
+
 
   useEffect(() => {
     const interval = setInterval(() => {
